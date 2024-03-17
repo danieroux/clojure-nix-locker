@@ -12,7 +12,7 @@ You can generate it with:
 mkdir play-with-clojure-nix-locker && cd play-with-clojure-nix-locker && nix flake init -t github:bevuta/clojure-nix-locker
 ```
 
-The [example README](example/README.md) has some next steps.
+The [example README](example/README.md) has some next steps and further documentation.
 
 ## Why another tool?
 
