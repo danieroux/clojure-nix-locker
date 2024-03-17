@@ -3,8 +3,11 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs";
-    clojure-nix-locker.url = "github:bevuta/clojure-nix-locker";
     flake-utils.url = "github:numtide/flake-utils";
+
+    clojure-nix-locker.url = "github:bevuta/clojure-nix-locker";
+    clojure-nix-locker.inputs.nixpkgs.follows = "nixpkgs";
+    clojure-nix-locker.inputs.flake-utils.follows = "flake-utils";
   };
 
   outputs = { self, nixpkgs, flake-utils, clojure-nix-locker, ... }:
@@ -51,6 +54,21 @@
           drv = my-clojure-nix-locker.locker;
         };
         devShells.default = pkgs.mkShell {
+          shellHook = ''
+            # Trace all Bash executions
+            set -o xtrace
+
+            source ${my-clojure-nix-locker.shellEnv}
+
+            echo "Current locked classpath:"
+            ${pkgs.clojure}/bin/clojure -Spath
+
+            set +o xtrace
+
+            echo
+            echo "Note that \$HOME is overridden and read-only: $HOME"
+            echo
+          '';
           inputsFrom = [
             packages.uberjar
           ];
@@ -60,6 +78,9 @@
             clojure
             clj-kondo
             coreutils
+            # This provides the standalone `clojure-nix-locker` script in the shell
+            # You can use it, or `nix run .#locker`
+            # Both does the same
             my-clojure-nix-locker.locker
           ];
         };
