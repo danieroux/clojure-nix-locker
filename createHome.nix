@@ -58,6 +58,13 @@ let
     echo '{}' > $out/tools/tools.edn
   '';
 
+  # This information is also in the derivations, and having it in one place has use
+  resolvedLockFile = pkgs.writeText "resolved.deps.lock.json" (builtins.toJSON contents);
+  depsInClojureHome = pkgs.runCommandNoCC "deps-manifest" {} ''
+    mkdir -p $out
+    cp ${resolvedLockFile} $out/deps.lock.json
+  '';
+
   # Creates a home directory for Clojure, combining all parts together
   clojureHome = gitWorkTrees:
     pkgs.linkFarm "clojure-home" [
@@ -76,6 +83,10 @@ let
       {
         name = ".clojure";
         path = configDir;
+      }
+      {
+        name = "deps-lock";
+        path = depsInClojureHome;
       }
     ];
 
